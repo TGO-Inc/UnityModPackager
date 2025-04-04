@@ -1,0 +1,14 @@
+/home/theguy920/RiderProjects/REPO_Mods/UnityModPackager/bin/Release/net9.0/UnityModPackager
+/home/theguy920/RiderProjects/REPO_Mods/UnityModPackager/bin/Release/net9.0/UnityModPackager.deps.json
+/home/theguy920/RiderProjects/REPO_Mods/UnityModPackager/bin/Release/net9.0/UnityModPackager.runtimeconfig.json
+/home/theguy920/RiderProjects/REPO_Mods/UnityModPackager/bin/Release/net9.0/UnityModPackager.dll
+/home/theguy920/RiderProjects/REPO_Mods/UnityModPackager/bin/Release/net9.0/UnityModPackager.pdb
+/home/theguy920/RiderProjects/REPO_Mods/UnityModPackager/obj/Release/net9.0/UnityModPackager.GeneratedMSBuildEditorConfig.editorconfig
+/home/theguy920/RiderProjects/REPO_Mods/UnityModPackager/obj/Release/net9.0/UnityModPackager.AssemblyInfoInputs.cache
+/home/theguy920/RiderProjects/REPO_Mods/UnityModPackager/obj/Release/net9.0/UnityModPackager.AssemblyInfo.cs
+/home/theguy920/RiderProjects/REPO_Mods/UnityModPackager/obj/Release/net9.0/UnityModPackager.csproj.CoreCompileInputs.cache
+/home/theguy920/RiderProjects/REPO_Mods/UnityModPackager/obj/Release/net9.0/UnityModPackager.dll
+/home/theguy920/RiderProjects/REPO_Mods/UnityModPackager/obj/Release/net9.0/refint/UnityModPackager.dll
+/home/theguy920/RiderProjects/REPO_Mods/UnityModPackager/obj/Release/net9.0/UnityModPackager.pdb
+/home/theguy920/RiderProjects/REPO_Mods/UnityModPackager/obj/Release/net9.0/UnityModPackager.genruntimeconfig.cache
+/home/theguy920/RiderProjects/REPO_Mods/UnityModPackager/obj/Release/net9.0/ref/UnityModPackager.dll

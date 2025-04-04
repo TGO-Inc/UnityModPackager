@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "wpyzF8G116c=",
+  "success": true,
+  "projectFilePath": "/home/theguy920/RiderProjects/REPO_Mods/UnityModPackager/UnityModPackager.csproj",
+  "expectedPackageFiles": [
+    "/home/theguy920/.nuget/packages/microsoft.dotnet.ilcompiler/9.0.3/microsoft.dotnet.ilcompiler.9.0.3.nupkg.sha512",
+    "/home/theguy920/.nuget/packages/microsoft.net.illink.tasks/9.0.3/microsoft.net.illink.tasks.9.0.3.nupkg.sha512",
+    "/home/theguy920/.nuget/packages/runtime.linux-x64.microsoft.dotnet.ilcompiler/9.0.3/runtime.linux-x64.microsoft.dotnet.ilcompiler.9.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
