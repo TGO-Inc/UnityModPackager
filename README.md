@@ -7,7 +7,7 @@ This is a packaging utility for class libraries targeting .NET Framework 4.8 for
 
 > [!TIP]
 > It is recomended to add the following to your `*.csproj`, be sure to include the `InitialTargets="GenerateNewTargets"`
-> https://github.com/TGO-Inc/UnityModPackager/blob/86d9c63810226d24030f39427d446dd9cc1f2656/example.targets#L1-L16
+> https://github.com/TGO-Inc/UnityModPackager/blob/fe9b4729f44907c506f0c75204d6babccf4a6d1c/example.targets#L1-L17
 
 
 A reference or example of `main.targets`:
