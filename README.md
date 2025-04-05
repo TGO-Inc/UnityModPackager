@@ -35,7 +35,9 @@ This is a tool meant to run after `assets.project.json` is generated
 On first build/restore, it will update the `*.csproj` file and changes *may* not take effect until the second build
 
 > [!TIP]
-> It is recommended to add the following to your `*.csproj`, be sure to include `InitialTargets="GenerateNewTargets"`
+> It is recommended to add the following to your `*.csproj`
+>
+> Be sure to include `InitialTargets="GenerateNewTargets"`
 > https://github.com/TGO-Inc/UnityModPackager/blob/fe9b4729f44907c506f0c75204d6babccf4a6d1c/example.targets#L1-L17
 
 
