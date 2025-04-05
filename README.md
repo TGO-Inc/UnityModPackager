@@ -28,7 +28,7 @@ This tool ensures...
 >
 > You must implement your own `AppDomain.CurrentDomain.AssemblyResolve += handler;`
 >
-> For automatic dependency resolution, see [here](README.md#automatic-dependency-resolution)
+> For automatic dependency resolution, see [here](#automatic-dependency-resolution)
 
 This is a tool meant to run after `assets.project.json` is generated
 
@@ -51,7 +51,7 @@ https://github.com/TGO-Inc/UnityModPackager/blob/86d9c63810226d24030f39427d446dd
 
 Once all of the above is complete, you are ready to start modding!
 
-If you want, you can take a peak at the [Workflow](README.md#workflow) below to see how this tool works
+If you want, you can take a peak at the [Workflow](#workflow) below to see how this tool works
 
 # Workflow
 
