@@ -4,19 +4,19 @@ This is a packaging utility for class libraries targeting .NET Framework 4.8 for
 
 ### What does this do?
 This tool ensures...
-- The build output is clean (single DLL)
+- 🔥 The build output is clean (single DLL) 
   
-- All referenced assemblies are included as embedded resources
+- 📦 All referenced assemblies are included as embedded resources 
   - This includes implicit references that are not typically copied to the output directory
   
-- Embedded assemblies are compressed
+- 📥 Embedded assemblies are compressed 
   
-- MetaData for each assembly is included
-  
-- Manually referenced DLL's are not included `<Reference>`
+- 📄 MetaData for each assembly is included 
+   
+- 🚫 Manually referenced DLL's are not included `<Reference>` 
   - Things like `UnityEngine.dll` will not be added as an embedded resource
     
-- Project references are not included `<ProjectReference>`
+- 🚫 Project references are not included `<ProjectReference>`
     
 > [!NOTE]
 > Common libraries like `System.Memory` are not copied to the output directory resulting in `AssemblyLoad` errors
