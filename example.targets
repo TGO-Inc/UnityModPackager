@@ -11,6 +11,7 @@
         <ItemGroup>
             <AllOutputFiles Include="$(TargetDir)*.dll" />
         </ItemGroup>
-        <Copy SourceFiles="@(AllOutputFiles)" DestinationFolder="$(CopyToDirOnBuild)%(RecursiveDir)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(AllOutputFiles)" DestinationFolder="$(CopyToDirOnBuild)%(RecursiveDir)" 
+              OverwriteReadOnlyFiles="true" SkipUnchangedFiles="true" />
     </Target>
 </Project>
