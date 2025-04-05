@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <DotNetToolsDirectory Condition="'$([MSBuild]::IsOSUnixLike())' == 'true'">$(HOME)/.dotnet/tools</DotNetToolsDirectory>
+        <DotNetToolsDirectory Condition="'$([MSBuild]::IsOSUnixLike())' != 'true'">$(USERPROFILE)\.dotnet\tools</DotNetToolsDirectory>
+        <PathSeparator Condition="'$(OS)' == 'Windows_NT'">\</PathSeparator>
+        <PathSeparator Condition="'$(OS)' != 'Windows_NT'">/</PathSeparator>
+    </PropertyGroup>
+    <PropertyGroup>
+        <CopyToDirOnBuild>/home/theguy920/.config/r2modmanPlus-local/REPO/profiles/Default/BepInEx/plugins/TheGuy920-SoundBoard/</CopyToDirOnBuild>
+        <REPODir>..\..\..\..\..\mnt\2TB_NVME\SteamLibrary\steamapps\common\REPO\</REPODir>
+        <HarmonyDir>..\..\..\.config\r2modmanPlus-local\REPO\profiles\Default\BepInEx\core\</HarmonyDir>
+        <BepInExDir>..\..\..\.config\r2modmanPlus-local\REPO\profiles\Default\BepInEx\core\</BepInExDir>
+        <MenuLibDir>..\..\..\.config\r2modmanPlus-local\REPO\profiles\Default\BepInEx\plugins\nickklmao-MenuLib\</MenuLibDir>
+    </PropertyGroup>
+</Project>

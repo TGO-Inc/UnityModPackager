@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk" InitialTargets="GenerateNewTargets">
+    <!-- Import constants/defintions from the main project file. -->
+    <Import Project="$(ProjectDir)../../REPO_Mods/main.targets" />
+    <!-- This target is used to generate the new .targets file for the project. -->
+    <Target Name="GenerateNewTargets" BeforeTargets="Restore">
+        <Exec Command="$(DotNetToolsDirectory)$(PathSeparator)UnityModPackager --pre" WorkingDirectory="$(ProjectDir)" />
+    </Target>
+    <!-- This target is used to copy the output files to the plugin directory after the build is complete. -->
+    <Target Name="CustomPostBuild" AfterTargets="Build">
+        <ItemGroup>
+            <AllOutputFiles Include="$(TargetDir)*.dll" />
+        </ItemGroup>
+        <Copy SourceFiles="@(AllOutputFiles)" DestinationFolder="$(CopyToDirOnBuild)%(RecursiveDir)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="true" />
+    </Target>
+</Project>
