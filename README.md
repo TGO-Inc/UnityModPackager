@@ -1,1 +1,67 @@
-## It autopackages libs as embedded resoureces and other things for your unity mod
+# Unity Mod AutoPackage Utility
+
+This is a packaging utility for class libraries targeting .NET Framework 4.8 for deployment in the Unity environment
+
+# Workflow
+
+### Working in `*.csproj`
+https://github.com/TGO-Inc/UnityModPackager/blob/b231e56407d47d50f3f8ddc9bbc7c17e314254cc/Program.cs#L29-L32
+
+- **Ensure Tag**: `CopyLocalLockFileAssemblies = false`
+  - Prevents references generated in `assets.project.json` [[NuGet]](https://nuget.org/) from being copied to the output directory
+    https://github.com/TGO-Inc/UnityModPackager/blob/0ab66d5d05b0649d517ccd8b163110f619b7ac85/Program.cs#L49
+
+- **Ensure Tag**: `AutoGenerateBindingRedirects = true`
+  - Ensures properly linking to referenced libraries to prevent versioning errors
+    https://github.com/TGO-Inc/UnityModPackager/blob/0ab66d5d05b0649d517ccd8b163110f619b7ac85/Program.cs#L50
+    
+- **Ensure Tag**: `GenerateBindingRedirectsOutputType = true`
+  - Ensures the binding redirects are generated based on the project output type ( library )
+    https://github.com/TGO-Inc/UnityModPackager/blob/0ab66d5d05b0649d517ccd8b163110f619b7ac85/Program.cs#L51
+ 
+- **Ensure Attribute**: `Private = false`
+  - Ensures that `ProjectReference` and `Reference` are not copied to the output directory
+  - `PackageReference` is not required because it is handled by the tags above
+    https://github.com/TGO-Inc/UnityModPackager/blob/0ab66d5d05b0649d517ccd8b163110f619b7ac85/Program.cs#L52-L54
+ 
+- **Ensure Tag**: `<Import Project="obj/GeneratedResources.targets"/>`
+  - Ensures the auto-generated resource file is imported into the project
+    https://github.com/TGO-Inc/UnityModPackager/blob/0ab66d5d05b0649d517ccd8b163110f619b7ac85/Program.cs#L55
+
+***
+
+### Working in `assets.project.json`
+https://github.com/TGO-Inc/UnityModPackager/blob/0ab66d5d05b0649d517ccd8b163110f619b7ac85/Program.cs#L58-L61
+
+- Locate all dependencies, including implicit (default behavior of `assets.project.json`)
+  https://github.com/TGO-Inc/UnityModPackager/blob/3a6a6917ff6d80a65aafd491e5955459948864e8/Program.cs#L70
+
+> [!WARNING]
+> - If our target is invalid `_._` or is under `ref`, we must look for alternatives
+> https://github.com/TGO-Inc/UnityModPackager/blob/921c87e6d3f63f0f239121e3ee2b8daf949fa968/Program.cs#L71
+> - Strongly prefer files found under `lib` and **DO NOT** include `.NET Framework 4.5` as it has a history of causing fatal crashes in Unity
+> https://github.com/TGO-Inc/UnityModPackager/blob/921c87e6d3f63f0f239121e3ee2b8daf949fa968/Program.cs#L73-L78
+> - If no candidates are found, fallback to files under `ref`
+> https://github.com/TGO-Inc/UnityModPackager/blob/b231e56407d47d50f3f8ddc9bbc7c17e314254cc/Program.cs#L89-L94
+> - Allow for multiple versions of the same Assembly, so that if `Assembly.Load` fails, there are fallback Assemblies to try
+> https://github.com/TGO-Inc/UnityModPackager/blob/3a6a6917ff6d80a65aafd491e5955459948864e8/Program.cs#L96-L101
+
+- Generate library metadata in place
+  https://github.com/TGO-Inc/UnityModPackager/blob/b231e56407d47d50f3f8ddc9bbc7c17e314254cc/Program.cs#L118-L127
+
+- Compress library in place
+  https://github.com/TGO-Inc/UnityModPackager/blob/b231e56407d47d50f3f8ddc9bbc7c17e314254cc/Program.cs#L136-L140
+  
+- Generate `.targets` file
+  https://github.com/TGO-Inc/UnityModPackager/blob/3a6a6917ff6d80a65aafd491e5955459948864e8/Program.cs#L156-L158
+  - Ensure the LogicalName (the name of the resource in the manifest) is unique under the current Assembly
+  - This allows for multiple versions of the same Assembly for fallback purposes
+
+ - Write file to `obj/GeneratedResources.targets`
+
+> [!NOTE]
+> This tool only generates the workflow for automatically embeddeding assemblies into your project
+> 
+> [Repo.Shared](https://github.com/TGO-Inc/REPO.Shared) Includes the nesseary components for automatically loading, decompressing, and resolving these internal assemblies
+> 
+> Check out [REPO.Shared.AssemblyResolver.cs](https://github.com/TGO-Inc/REPO.Shared/blob/6817cb6d2d214869e8d970d99a46c84601130347/Internal/AssemblyResolver.cs#L143-L183) to see how the library metadata is used
