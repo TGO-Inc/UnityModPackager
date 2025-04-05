@@ -2,6 +2,26 @@
 
 This is a packaging utility for class libraries targeting .NET Framework 4.8 for deployment in the Unity environment
 
+- This is a tool meant to run after `assets.project.json` is generated
+- On first build/restore, it will update the `*.csproj` file and changes may not take effect until the second build
+
+> [!TIP]
+> It is recomended to add the following to your `*.csproj`, be sure to include the `InitialTargets="GenerateNewTargets"`
+> https://github.com/TGO-Inc/UnityModPackager/blob/86d9c63810226d24030f39427d446dd9cc1f2656/example.targets#L1-L16
+
+
+A reference or example of `main.targets`:
+https://github.com/TGO-Inc/UnityModPackager/blob/86d9c63810226d24030f39427d446dd9cc1f2656/example.main.targets#L1-L16
+
+> [!IMPORTANT]
+> Make sure that UnityModPackager can be accessed at `$USER_HOME$/.dotnet/tools/`
+> https://github.com/TGO-Inc/UnityModPackager/blob/86d9c63810226d24030f39427d446dd9cc1f2656/UnityModPackager.csproj#L42-L44
+> Here a symbolic link is created on build
+
+Once all of the above is complete, you are ready to start modding!
+
+If you want, you can take a peak at the [Workflow](README.md#workflow) below to see how this tool works
+
 # Workflow
 
 ### Working in `*.csproj`
@@ -60,8 +80,8 @@ https://github.com/TGO-Inc/UnityModPackager/blob/0ab66d5d05b0649d517ccd8b163110f
  - Write file to `obj/GeneratedResources.targets`
 
 > [!NOTE]
-> This tool only generates the workflow for automatically embeddeding assemblies into your project
+> This tool only generates the workflow for automatically embedding assemblies into your project
 > 
-> [Repo.Shared](https://github.com/TGO-Inc/REPO.Shared) Includes the nesseary components for automatically loading, decompressing, and resolving these internal assemblies
+> [Repo.Shared](https://github.com/TGO-Inc/REPO.Shared) Includes the necessary components for automatically loading, decompressing, and resolving these internal assemblies
 > 
 > Check out [REPO.Shared.AssemblyResolver.cs](https://github.com/TGO-Inc/REPO.Shared/blob/6817cb6d2d214869e8d970d99a46c84601130347/Internal/AssemblyResolver.cs#L143-L183) to see how the library metadata is used
