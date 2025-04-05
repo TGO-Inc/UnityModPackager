@@ -94,7 +94,7 @@ https://github.com/TGO-Inc/UnityModPackager/blob/0ab66d5d05b0649d517ccd8b163110f
 > https://github.com/TGO-Inc/UnityModPackager/blob/921c87e6d3f63f0f239121e3ee2b8daf949fa968/Program.cs#L73-L78
 > - If no candidates are found, fallback to files under `ref`
 > https://github.com/TGO-Inc/UnityModPackager/blob/b231e56407d47d50f3f8ddc9bbc7c17e314254cc/Program.cs#L89-L94
-> - Allow for multiple versions of the same Assembly, so that if `Assembly.Load` fails, there are fallback Assemblies to try
+> - Allow for multiple versions of the same Assembly, so that if `Assembly.Load` fails, there are fallback assemblies to try
 > https://github.com/TGO-Inc/UnityModPackager/blob/3a6a6917ff6d80a65aafd491e5955459948864e8/Program.cs#L96-L101
 
 - Generate library metadata in place
@@ -105,8 +105,8 @@ https://github.com/TGO-Inc/UnityModPackager/blob/0ab66d5d05b0649d517ccd8b163110f
   
 - Generate `.targets` file
   https://github.com/TGO-Inc/UnityModPackager/blob/3a6a6917ff6d80a65aafd491e5955459948864e8/Program.cs#L156-L158
-  - Ensure the LogicalName (the name of the resource in the manifest) is unique under the current Assembly
-  - This allows for multiple versions of the same Assembly for fallback purposes
+  - Ensure the LogicalName (the name of the resource in the manifest) is unique under the current assembly
+  - This allows for multiple versions of the same assembly for fallback purposes
 
  - Write file to `obj/GeneratedResources.targets`
 
