@@ -74,9 +74,7 @@ internal static partial class Program
                         .Select(i => i?.AsValue().GetValue<string>())
                         .Where(f => f is not null && (
                             f.StartsWith("lib/net4") || 
-                            // f.StartsWith("ref/net4") || 
                             f.StartsWith("lib/netstandard")
-                            // || f.StartsWith("ref/netstandard")
                             ) && f.EndsWith(".dll") && !f.StartsWith("lib/net45")).ToArray();
 
                     if (alternatives.Length > 0)
