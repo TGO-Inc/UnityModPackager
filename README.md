@@ -2,15 +2,44 @@
 
 This is a packaging utility for class libraries targeting .NET Framework 4.8 for deployment in the Unity environment
 
-- This is a tool meant to run after `assets.project.json` is generated
-- On first build/restore, it will update the `*.csproj` file and changes may not take effect until the second build
+### What does this do?
+This tool ensures...
+- The build output is clean (single DLL)
+  
+- All referenced assemblies are included as embedded resources
+  - This includes implicit references that are not typically copied to the output directory
+  
+- Embedded assemblies are compressed
+  
+- MetaData for each assembly is included
+  
+- Manually referenced DLL's are not included `<Reference>`
+  - Things like `UnityEngine.dll` will not be added as an embedded resource
+    
+- Project references are not included `<ProjectReference>`
+    
+> [!NOTE]
+> Common libraries like `System.Memory` are not copied to the output directory resulting in `AssemblyLoad` errors
+> 
+> These libraries will be included and packaged with your project
+
+> [!CAUTION]
+> The embedded libraries are not automatically or magically loaded for you!
+>
+> You must implement your own `AppDomain.CurrentDomain.AssemblyResolve += handler;`
+>
+> For automatic dependency resolution, see [here](README.md#automatic-dependency-resolution)
+
+This is a tool meant to run after `assets.project.json` is generated
+
+On first build/restore, it will update the `*.csproj` file and changes *may* not take effect until the second build
 
 > [!TIP]
-> It is recomended to add the following to your `*.csproj`, be sure to include the `InitialTargets="GenerateNewTargets"`
+> It is recommended to add the following to your `*.csproj`, be sure to include the `InitialTargets="GenerateNewTargets"`
 > https://github.com/TGO-Inc/UnityModPackager/blob/fe9b4729f44907c506f0c75204d6babccf4a6d1c/example.targets#L1-L17
 
 
-A reference or example of `main.targets`:
+An example of `main.targets`:
 https://github.com/TGO-Inc/UnityModPackager/blob/86d9c63810226d24030f39427d446dd9cc1f2656/example.main.targets#L1-L16
 
 > [!IMPORTANT]
@@ -79,6 +108,7 @@ https://github.com/TGO-Inc/UnityModPackager/blob/0ab66d5d05b0649d517ccd8b163110f
 
  - Write file to `obj/GeneratedResources.targets`
 
+## Automatic Dependency Resolution
 > [!NOTE]
 > This tool only generates the workflow for automatically embedding assemblies into your project
 > 
