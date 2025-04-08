@@ -79,19 +79,15 @@ public class XmlFile
 
     public void RemoveItem(string target, params (string attribute, string value)[] attributes)
     {
-        var nodes = _xmlDoc.GetElementsByTagName(target).Cast<XmlElement>().ToArray();
+        var nodes = _xmlDoc.GetElementsByTagName(target).Cast<XmlElement>();
         foreach (var node in nodes)
-        {
             if (attributes.All(attr => node.GetAttribute(attr.attribute) == attr.value))
-            {
                 node.ParentNode?.RemoveChild(node);
-            }
-        }
     }
     
     public void AddAttribute(string tag, string name, object value)
     {
-        var nodes = _xmlDoc.GetElementsByTagName(tag).Cast<XmlElement>().ToArray();
+        var nodes = _xmlDoc.GetElementsByTagName(tag).Cast<XmlElement>();
         foreach (var node in nodes)
             node.SetAttribute(name, value.ToString()?.ToLowerInvariant());
     }
@@ -115,7 +111,7 @@ public class XmlFile
 
     public void AddTag(string tag, string name, object value)
     {
-        var nodes = _xmlDoc.GetElementsByTagName(tag).Cast<XmlElement>().ToArray();
+        var nodes = _xmlDoc.GetElementsByTagName(tag).Cast<XmlElement>();
         foreach (var node in nodes)
             if (!node.InnerXml.Contains("<" + name + ">"))
                 node.InnerXml += $"<{name}>{value.ToString()?.ToLowerInvariant()}</{name}>";
@@ -130,5 +126,21 @@ public class XmlFile
         var newNode = _xmlDoc.CreateElement(name);
         newNode.InnerText = value.ToString().ToLowerInvariant();
         node.AppendChild(newNode);
+    }
+
+    public string GetAttributeOfFirst(string target, string name, params (string Name, string Value)[] attributes)
+    {
+        var nodes = _xmlDoc.GetElementsByTagName(target).Cast<XmlElement>();
+        foreach (var node in nodes)
+            if (attributes.All(attr => node.GetAttribute(attr.Name) == attr.Value))
+                return node.GetAttribute(name);
+        
+        return string.Empty;
+    }
+
+    public IEnumerable<XmlElement> GetAllTagsWith(string tag, params (string Name, string Value)[] attributes)
+    {
+        var nodes = _xmlDoc.GetElementsByTagName(tag).Cast<XmlElement>();
+        return nodes.Where(node => attributes.All(attr => node.GetAttribute(attr.Name) == attr.Value));
     }
 }

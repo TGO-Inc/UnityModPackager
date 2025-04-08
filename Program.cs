@@ -1,28 +1,15 @@
-﻿using System.Diagnostics;
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Nodes;
-using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace UnityModPackager;
 
-internal static partial class Program
+internal static class Program
 {
-    // this is csproj xml to ignore the Build.*.csproj files
-    private const string IgnoreXml = "<ItemGroup><Compile Remove=\"Build.*.csproj\"/><None Remove=\"Build.*.csproj\"/></ItemGroup>";
-
-    private static string[] Banned =
-    [
-        // "System.Resources.ResourceManager", 
-        // "System.Reflection.Extensions"
-    ];
-    
     private static void Main(string[] args)
     {
         // Find the csproj file in the current directory
@@ -47,27 +34,37 @@ internal static partial class Program
         
         // Make sure all the assembly references are set to CopyLocal = false
         userCsProj.AddTagToFirst("PropertyGroup", "CopyLocalLockFileAssemblies", false);
-        userCsProj.AddTagToFirst("PropertyGroup", "AutoGenerateBindingRedirects", true);
-        userCsProj.AddTagToFirst("PropertyGroup", "GenerateBindingRedirectsOutputType", true);
         userCsProj.AddTag("Reference", "Private", false);
         userCsProj.AddAttribute("ProjectReference", "Private", false);
-        // userCsProj.AddAttribute("PackageReference", "ExcludeAssets", "runtime");
-        userCsProj.AddTagToRoot("Import", ("Project", "obj/GeneratedResources.targets"));
+        var condition = userCsProj.GetAttributeOfFirst("Target", "Condition", ("Name", "GenerateNewTargets"));
+        userCsProj.AddTagToRoot("Import", ("Project", "obj/GeneratedResources.targets"), ("Condition", condition));
         userCsProj.SaveDocument();
         
         // Load all libraries in ./obj/project.assets.json
         var projectAssetsPath = Path.Combine(Path.GetDirectoryName(csprojFile) ?? "", "obj", "project.assets.json");
         var projectAssetsJson = JsonNode.Parse(File.ReadAllText(projectAssetsPath))!;
-        var jsonLibraries = projectAssetsJson["targets"]![".NETFramework,Version=v4.8"]!;
+        var jsonLibraries = projectAssetsJson["targets"]!.AsObject().First().Value;
         
         // Libraries base path is UserDir/.nuget/packages/
         var librariesBasePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages");
         
         List<string> libraries = [];
+        // Force include Dlls with Label="Include"
+        var includeTags = userCsProj.GetAllTagsWith("Reference", ("Label", "Include"));
+        var includePaths = includeTags.Select(t => t.ChildNodes.Cast<XmlLinkedNode>()
+                .First(n => n.Name == "HintPath"))
+            .Select(t => t.InnerText);
+        libraries.AddRange(includePaths);
+
+        var bannedLibs = includePaths.Select(Path.GetFileName).ToArray();
+        
         foreach (var (key, value) in jsonLibraries.AsObject())
             if (value["compile"] is JsonObject jobj)
             {
                 var libName = jobj.Select(kvp => kvp.Key).First();
+                if (bannedLibs.Contains(Path.GetFileName(libName)))
+                    continue;
+
                 if (libName.EndsWith("_._") || libName.StartsWith("ref"))
                 {
                     var alternatives = projectAssetsJson["libraries"]![key]!["files"]!.AsArray()
@@ -95,34 +92,24 @@ internal static partial class Program
                     {
                         libraries.AddRange(alternatives.Select(alt =>
                             Path.Combine(librariesBasePath, key.ToLower(), alt)));
-                        continue;
                     }
+                    
+                    continue;
                 }
                 libraries.Add(Path.Combine(librariesBasePath, key.ToLower(), libName));
             }
-
+        
         // Compress the dll files
         List<string> compressedLibraries = [];
         foreach (var lib in libraries.Where(File.Exists))
         {
-            // Skip the banned libraries
-            var fName = Path.GetFileNameWithoutExtension(lib);
-            if (Banned.Contains(fName))
-            {
-                Console.WriteLine("Skipping " + lib);
-                continue;
-            }
-            
             var dllMeta = lib + ".dllmeta";
-            // if (!File.Exists(dllMeta))
-            {
-                var asm = File.ReadAllBytes(lib);
-                var lAsmName = GetAssemblyNameFromData(asm);
-                var nameMeta = SerializeAssemblyName(lAsmName);
-                File.WriteAllBytes(dllMeta, nameMeta);
-                
-                Console.WriteLine("Generated Dll MetaData " + dllMeta);
-            }
+            
+            var asm = File.ReadAllBytes(lib);
+            var lAsmName = GetAssemblyNameFromData(asm);
+            var nameMeta = SerializeAssemblyName(lAsmName);
+            File.WriteAllBytes(dllMeta, nameMeta);
+            Console.WriteLine("Generated Dll MetaData " + dllMeta);
             
             var compressedLib = lib + ".gz";
             if (File.Exists(compressedLib))
@@ -136,16 +123,15 @@ internal static partial class Program
             using var gzipStream = new GZipStream(outputStream, CompressionMode.Compress);
             inputStream.CopyTo(gzipStream);
             compressedLibraries.Add(lib);
-            
             Console.WriteLine("Compressed " + lib);
         }
         
+        var i = 0;
         // Generate the EmbeddedResource xml tags for the libraries
         var xmlInclude = new StringBuilder();
         xmlInclude.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
         xmlInclude.AppendLine("<Project xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
         xmlInclude.AppendLine("<ItemGroup>");
-        var i = 0;
         foreach (var lib in compressedLibraries)
         {
             Console.WriteLine("Embedding " + lib);
@@ -173,39 +159,43 @@ internal static partial class Program
 
         var mdReader = peReader.GetMetadataReader();
         var assemblyDefinition = mdReader.GetAssemblyDefinition();
-
-        // Read the assembly name, version, and culture from the metadata
-        var name = mdReader.GetString(assemblyDefinition.Name);
-        var version = assemblyDefinition.Version;
-        var culture = mdReader.GetString(assemblyDefinition.Culture);
-
-        var assemblyName = new AssemblyName
-        {
-            Name = name,
-            Version = version,
-            CultureName = string.IsNullOrEmpty(culture) ? null : culture
-        };
-
-        // Optionally, include public key if needed
-        var publicKeyHandle = assemblyDefinition.PublicKey;
-        if (publicKeyHandle.IsNil) return assemblyName;
-        var publicKey = mdReader.GetBlobBytes(publicKeyHandle);
-        assemblyName.SetPublicKey(publicKey);
-
-        return assemblyName;
+        return assemblyDefinition.GetAssemblyName();
     }
 
     private static byte[] SerializeAssemblyName(AssemblyName assemblyName)
     {
         var sb = new StringBuilder();
-        sb.AppendLine(assemblyName.Name);
-        sb.AppendLine(assemblyName.FullName);
-        sb.AppendLine(assemblyName.Flags.ToString());
-        sb.AppendLine(assemblyName.Version.ToString());
-        sb.AppendLine(assemblyName.ContentType.ToString());
-        sb.AppendLine(string.Join(";", assemblyName.GetPublicKey() ?? []));
-        sb.AppendLine(string.Join(";", assemblyName.GetPublicKeyToken() ?? []));
-        
+        sb.AddWithComma(assemblyName.Name);
+        sb.AddWithComma(assemblyName.Version);
+        sb.AddWithComma((assemblyName.GetPublicKey() ?? []).ToHexStr());
+        sb.Append((assemblyName.GetPublicKeyToken() ?? []).ToHexStr());
         return Encoding.UTF8.GetBytes(sb.ToString());
+    }
+}
+
+public static class StringBuilderExtensions
+{
+    public static StringBuilder AddWithComma(this StringBuilder sb, object? value)
+        => sb.Append(value).Append(',');
+}
+
+public static class ByteExtensions
+{
+    public static string ToHexStr(this byte[] bytes)
+        => BitConverter.ToString(bytes).Replace("-", string.Empty);
+    public static byte[] FromHexToBytes(this string hex)
+    {
+        if (hex.Length % 2 != 0)
+            throw new ArgumentException("Hex string must have an even length.");
+
+        var bytes = new byte[hex.Length / 2];
+
+        for (var i = 0; i < bytes.Length; i++)
+        {
+            var byteValue = hex.Substring(i * 2, 2);
+            bytes[i] = Convert.ToByte(byteValue, 16);
+        }
+
+        return bytes;
     }
 }
